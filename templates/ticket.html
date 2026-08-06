@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.ticket_id }}{% endblock %}
+{% block content %}
+
+<a class="back-link" href="{{ url_for('list_tickets') }}">&larr; All tickets</a>
+
+<div class="card">
+  <div class="row">
+    <div>
+      <h1>#{{ ticket.ticket_id }} — {{ ticket.title }}</h1>
+      <div class="meta">
+        Opened by {{ ticket.created_by }} on {{ ticket.created_at.strftime('%b %d, %Y %H:%M') }}
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 16px;">
+    <span class="badge {{ ticket.status }}">{{ ticket.status.replace('_', ' ') }}</span>
+  </div>
+
+  <form class="inline-form" style="margin-top: 16px;" method="post"
+        action="{{ url_for('update_status', ticket_id=ticket.ticket_id) }}">
+    <label for="status" style="margin-bottom:0;">Update status:</label>
+    <select id="status" name="status">
+      {% for s in statuses %}
+        <option value="{{ s }}" {{ 'selected' if s == ticket.status }}>{{ s.replace('_', ' ') }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Update</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Messages</h2>
+  {% if messages %}
+    {% for m in messages %}
+      <div class="message">
+        <div>{{ m.message_text }}</div>
+        <div class="meta">{{ m.author }} &middot; {{ m.created_at.strftime('%b %d, %Y %H:%M') }}</div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="empty">No messages yet.</p>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('add_message', ticket_id=ticket.ticket_id) }}" style="margin-top: 16px;">
+    <label for="message_text">Add a message</label>
+    <textarea id="message_text" name="message_text" placeholder="Write an update..." required></textarea>
+
+    <label for="author">Your name</label>
+    <input type="text" id="author" name="author" placeholder="e.g. jane.doe" required>
+
+    <button type="submit">Post message</button>
+  </form>
+</div>
+{% endblock %}

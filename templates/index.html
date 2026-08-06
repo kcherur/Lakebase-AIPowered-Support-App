@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}All Tickets{% endblock %}
+{% block content %}
+
+<div class="card">
+  <h2>New ticket</h2>
+  <form method="post" action="{{ url_for('create_ticket') }}">
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" placeholder="Short summary of the issue" required>
+
+    <label for="created_by">Your name</label>
+    <input type="text" id="created_by" name="created_by" placeholder="e.g. jane.doe" required>
+
+    <button type="submit">Create ticket</button>
+  </form>
+</div>
+
+<div class="card">
+  <h1>All tickets</h1>
+
+  <div class="filters">
+    <a href="{{ url_for('list_tickets') }}" class="{{ 'active' if not status_filter }}">All</a>
+    {% for s in statuses %}
+      <a href="{{ url_for('list_tickets', status=s) }}" class="{{ 'active' if status_filter == s }}">
+        {{ s.replace('_', ' ') }}
+      </a>
+    {% endfor %}
+  </div>
+
+  {% if tickets %}
+    <ul class="ticket-list">
+      {% for t in tickets %}
+        <li>
+          <a href="{{ url_for('view_ticket', ticket_id=t.ticket_id) }}">#{{ t.ticket_id }} — {{ t.title }}</a>
+          <span class="badge {{ t.status }}">{{ t.status.replace('_', ' ') }}</span>
+          <div class="meta">
+            Opened by {{ t.created_by }} on {{ t.created_at.strftime('%b %d, %Y %H:%M') }}
+            &middot; {{ t.message_count }} message{{ 's' if t.message_count != 1 else '' }}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">No tickets yet. Create one above to get started.</p>
+  {% endif %}
+</div>
+{% endblock %}
