@@ -1,38 +1,40 @@
 """
-One-time setup: store the Lakebase connection URL as a Databricks secret.
+One-time setup script: creates the Databricks secret scope and stores the
+application API key. Run this locally (with the Databricks CLI configured) or
+from a notebook - never commit the resulting secret value anywhere.
 
-Run this once from a Databricks notebook (%sh python setup_secrets.py) or a
-terminal with the Databricks CLI authenticated. It prompts for the Lakebase
-connection URL and stores it base64-encoded under the scope/key that
-lakebase.py reads from (default: database/lakebase-url).
+Usage:
+    python setup_secrets.py
 """
-
-import base64
-import getpass
-import os
-
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.service import workspace
+import getpass
 
-SCOPE = os.environ.get("LAKEBASE_SECRET_SCOPE", "database")
-KEY = os.environ.get("LAKEBASE_SECRET_KEY", "lakebase-url")
+w = WorkspaceClient()
 
+w.secrets.create_scope(scope="massive")
+w.secrets.put_secret(
+    scope="massive",
+    key="api-key",
+    string_value=getpass.getpass("Paste your Massive API key: ")
+)
 
-def main():
-    w = WorkspaceClient()
-
-    existing_scopes = [s.name for s in w.secrets.list_scopes()]
-    if SCOPE not in existing_scopes:
-        w.secrets.create_scope(scope=SCOPE)
-        print(f"Created secret scope: {SCOPE}")
-
-    lakebase_url = getpass.getpass(
-        "Paste your Lakebase connection URL "
-        "(postgresql://role:password@host:5432/databricks_postgres?sslmode=require): "
-    )
-    encoded = base64.b64encode(lakebase_url.encode("utf-8")).decode("utf-8")
-    w.secrets.put_secret(scope=SCOPE, key=KEY, string_value=encoded)
-    print(f"Stored Lakebase URL as secret {SCOPE}/{KEY}")
+w.secrets.create_scope(scope="database")
+w.secrets.put_secret(
+    scope="database",
+    key="lakebase-url",
+    string_value=getpass.getpass("Paste your Lakebase URL: ")
+)
 
 
-if __name__ == "__main__":
-    main()
+w.secrets.put_acl(
+    scope="database",
+    principal="users",
+    permission=workspace.AclPermission.READ,
+)
+
+w.secrets.put_acl(
+    scope="massive",
+    principal="users",
+    permission=workspace.AclPermission.READ,
+)
