@@ -8,6 +8,7 @@ This keeps setup to a single secret instead of five separate env vars.
 """
 
 import os
+import base64
 from contextlib import contextmanager
 
 import psycopg2
@@ -23,7 +24,8 @@ _KEY = os.environ.get("LAKEBASE_SECRET_KEY", "lakebase-url")
 def _lakebase_url() -> str:
     """Fetch the Lakebase connection URL from the Databricks secret scope."""
     secret = _w.secrets.get_secret(scope=_SCOPE, key=_KEY)
-    return secret.value
+    #return secret.value
+    return base64.b64decode(secret.value).decode("utf-8")
 
 
 @contextmanager
