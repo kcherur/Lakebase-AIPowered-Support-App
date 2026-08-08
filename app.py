@@ -95,16 +95,12 @@ def create_ticket():
     if not title or not created_by:
         return redirect(url_for("list_tickets"))
 
-    rows = run_query(
-        """
-        INSERT INTO tickets (title, created_by)
-        VALUES (%s, %s)
-        RETURNING ticket_id
-        """,
+    run_write(
+        "INSERT INTO tickets (title, created_by) VALUES (%s, %s)",
         (title, created_by),
     )
-    ticket_id = rows[0]["ticket_id"]
-    return redirect(url_for("view_ticket", ticket_id=ticket_id))
+    # Redirect back to the main list after creating
+    return redirect(url_for("list_tickets"))
 
 
 @app.route("/tickets/<int:ticket_id>")
@@ -154,7 +150,8 @@ def update_status(ticket_id):
             "UPDATE tickets SET status = %s WHERE ticket_id = %s",
             (new_status, ticket_id),
         )
-    return redirect(url_for("view_ticket", ticket_id=ticket_id))
+    # Redirect back to the main list after updating status
+    return redirect(url_for("list_tickets"))
 
 
 @app.route("/healthz")

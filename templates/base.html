@@ -6,139 +6,272 @@
   <title>{% block title %}Support Tickets{% endblock %}</title>
   <style>
     :root {
-      --bg: #f6f7f9;
+      --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --bg: #f0f2f5;
       --card: #ffffff;
-      --border: #e2e5ea;
-      --text: #1f2430;
-      --muted: #6b7280;
-      --accent: #4f46e5;
-      --accent-hover: #4338ca;
+      --border: #e4e6eb;
+      --text: #1c1e21;
+      --muted: #65676b;
+      --accent: #5b51d8;
+      --accent-hover: #4840ba;
+      --accent-light: #f0eeff;
       --open: #2563eb;
-      --in_progress: #d97706;
-      --resolved: #16a34a;
+      --open-light: #dbeafe;
+      --in_progress: #f59e0b;
+      --in_progress-light: #fef3c7;
+      --resolved: #10b981;
+      --resolved-light: #d1fae5;
       --closed: #6b7280;
+      --closed-light: #f3f4f6;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
       background: var(--bg);
       color: var(--text);
+      line-height: 1.6;
     }
     header {
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: var(--shadow);
+      padding: 20px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     header a {
       text-decoration: none;
-      color: var(--text);
-      font-weight: 600;
-      font-size: 18px;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 20px;
+      transition: opacity 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
+    header a:hover { opacity: 0.9; }
     main {
-      max-width: 860px;
-      margin: 32px auto;
-      padding: 0 20px;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 24px;
     }
     .card {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 20px;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
     }
-    h1 { font-size: 22px; margin: 0 0 16px; }
-    h2 { font-size: 17px; margin: 0 0 12px; }
+    .card:hover {
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+    h1 {
+      font-size: 28px;
+      margin: 0 0 20px;
+      color: var(--text);
+      font-weight: 700;
+    }
+    h2 {
+      font-size: 20px;
+      margin: 0 0 16px;
+      color: var(--text);
+      font-weight: 700;
+    }
     label {
       display: block;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 4px;
+      color: var(--text);
+      margin-bottom: 6px;
     }
     input[type=text], textarea, select {
       width: 100%;
-      padding: 9px 11px;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      font-size: 14px;
+      padding: 12px 14px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
       font-family: inherit;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       background: #fff;
       color: var(--text);
+      transition: all 0.2s ease;
     }
-    textarea { min-height: 70px; resize: vertical; }
+    input[type=text]:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+    textarea { min-height: 90px; resize: vertical; }
     button {
       background: var(--accent);
       color: #fff;
       border: none;
-      padding: 9px 16px;
-      border-radius: 7px;
-      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
     }
-    button:hover { background: var(--accent-hover); }
-    .row { display: flex; gap: 12px; }
+    button:hover {
+      background: var(--accent-hover);
+      box-shadow: var(--shadow);
+      transform: translateY(-1px);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .row { display: flex; gap: 16px; }
     .row > div { flex: 1; }
     .ticket-list { list-style: none; margin: 0; padding: 0; }
     .ticket-list li {
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
       background: #fff;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .ticket-list li:hover {
+      border-color: var(--accent);
+      box-shadow: var(--shadow);
+      transform: translateX(4px);
     }
     .ticket-list a {
       text-decoration: none;
       color: var(--text);
       font-weight: 600;
-      font-size: 15px;
+      font-size: 16px;
+      transition: color 0.2s;
     }
-    .meta { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .ticket-list a:hover { color: var(--accent); }
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
     .badge {
       display: inline-block;
-      padding: 3px 10px;
-      border-radius: 999px;
+      padding: 5px 12px;
+      border-radius: 20px;
       font-size: 12px;
       font-weight: 600;
-      color: #fff;
       text-transform: capitalize;
+      transition: all 0.2s;
     }
-    .badge.open { background: var(--open); }
-    .badge.in_progress { background: var(--in_progress); }
-    .badge.resolved { background: var(--resolved); }
-    .badge.closed { background: var(--closed); }
+    .badge.open {
+      background: var(--open-light);
+      color: var(--open);
+      border: 1px solid var(--open);
+    }
+    .badge.in_progress {
+      background: var(--in_progress-light);
+      color: #d97706;
+      border: 1px solid var(--in_progress);
+    }
+    .badge.resolved {
+      background: var(--resolved-light);
+      color: #059669;
+      border: 1px solid var(--resolved);
+    }
+    .badge.closed {
+      background: var(--closed-light);
+      color: var(--closed);
+      border: 1px solid var(--closed);
+    }
     .message {
-      border-left: 3px solid var(--accent);
-      padding: 8px 14px;
-      margin-bottom: 10px;
-      background: #fafafe;
-      border-radius: 0 6px 6px 0;
+      border-left: 4px solid var(--accent);
+      padding: 14px 18px;
+      margin-bottom: 14px;
+      background: linear-gradient(to right, var(--accent-light) 0%, #fff 100%);
+      border-radius: 8px;
+      transition: all 0.2s ease;
     }
-    .message .meta { margin-top: 2px; margin-bottom: 0; }
-    .empty { color: var(--muted); font-size: 14px; }
+    .message:hover {
+      box-shadow: var(--shadow-sm);
+      transform: translateX(2px);
+    }
+    .message .meta { margin-top: 8px; margin-bottom: 0; }
+    .empty {
+      color: var(--muted);
+      font-size: 15px;
+      text-align: center;
+      padding: 40px 20px;
+    }
     .back-link {
-      display: inline-block;
-      margin-bottom: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 20px;
       color: var(--accent);
       text-decoration: none;
       font-size: 14px;
       font-weight: 600;
+      transition: all 0.2s;
+      padding: 8px 12px;
+      border-radius: 8px;
     }
-    .filters { margin-bottom: 16px; }
+    .back-link:hover {
+      background: var(--accent-light);
+      transform: translateX(-2px);
+    }
+    .filters {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     .filters a {
-      margin-right: 10px;
       text-decoration: none;
-      font-size: 13px;
-      color: var(--muted);
-      padding: 4px 10px;
-      border-radius: 6px;
+      font-size: 14px;
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 2px solid var(--border);
+      transition: all 0.2s;
+      font-weight: 600;
+      background: #fff;
     }
-    .filters a.active { background: var(--accent); color: #fff; }
-    .inline-form { display: flex; gap: 8px; align-items: center; }
-    .inline-form select { margin-bottom: 0; width: auto; }
+    .filters a:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .filters a.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      box-shadow: var(--shadow-sm);
+    }
+    .inline-form {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: var(--bg);
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+    .inline-form label { margin-bottom: 0; }
+    .inline-form select { margin-bottom: 0; width: auto; min-width: 150px; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card, .ticket-list li {
+      animation: slideIn 0.4s ease-out;
+    }
   </style>
 </head>
 <body>

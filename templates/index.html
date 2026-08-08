@@ -16,7 +16,7 @@
 </div>
 
 <div class="card">
-  <h1>All tickets</h1>
+  <h1>📊 All Support Tickets</h1>
 
   <div class="filters">
     <a href="{{ url_for('list_tickets') }}" class="{{ 'active' if not status_filter }}">All</a>
@@ -31,17 +31,22 @@
     <ul class="ticket-list">
       {% for t in tickets %}
         <li>
-          <a href="{{ url_for('view_ticket', ticket_id=t.ticket_id) }}">#{{ t.ticket_id }} — {{ t.title }}</a>
-          <span class="badge {{ t.status }}">{{ t.status.replace('_', ' ') }}</span>
-          <div class="meta">
-            Opened by {{ t.created_by }} on {{ t.created_at.strftime('%b %d, %Y %H:%M') }}
-            &middot; {{ t.message_count }} message{{ 's' if t.message_count != 1 else '' }}
+          <div style="display: flex; justify-content: space-between; align-items: start; gap: 12px;">
+            <div style="flex: 1;">
+              <a href="{{ url_for('view_ticket', ticket_id=t.ticket_id) }}">
+                <span style="color: var(--accent); font-weight: 700;">#{{ t.ticket_id }}</span> — {{ t.title }}
+              </a>
+              <div class="meta">
+                👤 {{ t.created_by }} • 📅 {{ t.created_at.strftime('%b %d, %Y %H:%M') }} • 💬 {{ t.message_count }} message{{ 's' if t.message_count != 1 else '' }}
+              </div>
+            </div>
+            <span class="badge {{ t.status }}">{{ t.status.replace('_', ' ') }}</span>
           </div>
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <p class="empty">No tickets yet. Create one above to get started.</p>
+    <p class="empty">🔍 No tickets found. Create your first ticket above to get started!</p>
   {% endif %}
 </div>
 {% endblock %}
