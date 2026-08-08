@@ -12,6 +12,7 @@
       </h1>
       <div class="meta" style="font-size: 14px;">
         👤 Opened by <strong>{{ ticket.created_by }}</strong> • 📅 {{ ticket.created_at.strftime('%b %d, %Y at %H:%M') }}
+        {% if ticket.category %} • 🏷️ <strong>{{ ticket.category.title() }}</strong>{% endif %}
       </div>
     </div>
     <div>

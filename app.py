@@ -23,6 +23,7 @@ from lakebase import run_query, run_write
 app = Flask(__name__)
 
 VALID_STATUSES = ["open", "in_progress", "resolved", "closed"]
+VALID_CATEGORIES = ["change request", "incident", "support", "need information", "need access"]
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS tickets (
@@ -30,6 +31,8 @@ CREATE TABLE IF NOT EXISTS tickets (
     title       TEXT NOT NULL,
     status      TEXT NOT NULL DEFAULT 'open'
                 CHECK (status IN ('open', 'in_progress', 'resolved', 'closed')),
+    category    TEXT NOT NULL DEFAULT 'need information'
+                CHECK (category IN ('change request', 'incident', 'support', 'need information', 'need access')),
     created_by  TEXT NOT NULL,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -50,6 +53,23 @@ CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets (status);
 def ensure_schema() -> None:
     """Create the tickets / ticket_messages tables if they don't exist yet."""
     run_write(SCHEMA_SQL)
+    # Add category column to existing tickets table if it doesn't exist
+    # and set existing tickets to 'need information'
+    run_write("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name = 'tickets' AND column_name = 'category'
+            ) THEN
+                ALTER TABLE tickets
+                ADD COLUMN category TEXT NOT NULL DEFAULT 'need information'
+                CHECK (category IN ('change request', 'incident', 'support', 'need information', 'need access'));
+                
+                UPDATE tickets SET category = 'need information' WHERE category IS NULL;
+            END IF;
+        END $$;
+    """)
 
 
 @app.route("/")
@@ -82,6 +102,7 @@ def list_tickets():
         "index.html",
         tickets=tickets,
         statuses=VALID_STATUSES,
+        categories=VALID_CATEGORIES,
         status_filter=status_filter,
     )
 
@@ -91,13 +112,17 @@ def create_ticket():
     """Create a new ticket."""
     title = request.form.get("title", "").strip()
     created_by = request.form.get("created_by", "").strip()
+    category = request.form.get("category", "need information").strip()
 
     if not title or not created_by:
         return redirect(url_for("list_tickets"))
+    
+    if category not in VALID_CATEGORIES:
+        category = "need information"
 
     run_write(
-        "INSERT INTO tickets (title, created_by) VALUES (%s, %s)",
-        (title, created_by),
+        "INSERT INTO tickets (title, created_by, category) VALUES (%s, %s, %s)",
+        (title, created_by, category),
     )
     # Redirect back to the main list after creating
     return redirect(url_for("list_tickets"))
@@ -120,7 +145,7 @@ def view_ticket(ticket_id):
         (ticket_id,),
     )
     return render_template(
-        "ticket.html", ticket=ticket, messages=messages, statuses=VALID_STATUSES
+        "ticket.html", ticket=ticket, messages=messages, statuses=VALID_STATUSES, categories=VALID_CATEGORIES
     )
 
 

@@ -8,6 +8,13 @@
     <label for="title">Title</label>
     <input type="text" id="title" name="title" placeholder="Short summary of the issue" required>
 
+    <label for="category">🏷️ Category</label>
+    <select id="category" name="category" required>
+      {% for cat in categories %}
+        <option value="{{ cat }}">{{ cat.title() }}</option>
+      {% endfor %}
+    </select>
+
     <label for="created_by">Your name</label>
     <input type="text" id="created_by" name="created_by" placeholder="e.g. jane.doe" required>
 
@@ -38,6 +45,7 @@
               </a>
               <div class="meta">
                 👤 {{ t.created_by }} • 📅 {{ t.created_at.strftime('%b %d, %Y %H:%M') }} • 💬 {{ t.message_count }} message{{ 's' if t.message_count != 1 else '' }}
+                {% if t.category %} • 🏷️ {{ t.category.title() }}{% endif %}
               </div>
             </div>
             <span class="badge {{ t.status }}">{{ t.status.replace('_', ' ') }}</span>
